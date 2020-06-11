@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView newUser;
     private Button loginButton;
 
-    MyDBHandler dbHandler = new MyDBHandler(this, null, null, 1);
+    MyDBHandler dbHandler = new MyDBHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if(isValidUser(etUsername.getText().toString(), etPassword.getText().toString())){
                     Intent intent = new Intent(MainActivity.this, Main3Activity.class);
+                    intent.putExtra("Username", etUsername.getText().toString());
                     startActivity(intent);
                     Toast.makeText(MainActivity.this, "Valid", Toast.LENGTH_SHORT).show();
                 }
@@ -84,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+
+
     public boolean isValidUser(String userName, String password){
 
         /* HINT:
@@ -93,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
          */
 
         UserData us = dbHandler.findUser(userName);
+
         if(us.getMyUserName().equals(userName) && us.getMyPassword().equals(password)){
             return true;
         }

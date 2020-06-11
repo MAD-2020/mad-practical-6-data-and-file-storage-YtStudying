@@ -5,11 +5,16 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.ArrayList;
 
 public class Main3Activity extends AppCompatActivity {
     /* Hint:
@@ -28,6 +33,10 @@ public class Main3Activity extends AppCompatActivity {
     private static final String FILENAME = "Main3Activity.java";
     private static final String TAG = "Whack-A-Mole3.0!";
 
+    private static String username;
+    private Button back;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +47,21 @@ public class Main3Activity extends AppCompatActivity {
 
         Log.v(TAG, FILENAME + ": Show level for User: "+ userName);
          */
+
+        Intent receiveData = getIntent();
+        username = receiveData.getDataString();
+
+
+
+        back = (Button) findViewById(R.id.back);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Main3Activity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override

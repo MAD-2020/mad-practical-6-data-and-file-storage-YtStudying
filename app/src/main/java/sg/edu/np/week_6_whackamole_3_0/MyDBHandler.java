@@ -52,14 +52,17 @@ public class MyDBHandler extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "WhackAMole.db";
     public static int DATABASE_VERSION = 1;
     private static final String TABLE = "WAM";
-    private static final String ID = "ID";
     private static final String USERNAME = "Username";
     private static final String PASSWORD = "Password";
     private static final String LEVEL = "Level";
     private static final String SCORE = "Score";
 
-    public MyDBHandler(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, DATABASE_NAME, factory, DATABASE_VERSION);
+    int lvl, score;
+    ArrayList<Integer> levelList = new ArrayList<>();
+    ArrayList<Integer> scoreList = new ArrayList<>();
+
+    public MyDBHandler(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     /* public MyDBHandler(Context context)
@@ -80,7 +83,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
          */
 
         String CREATE_PRODUCTS_TABLE = "CREATE TABLE " + TABLE +
-            "(ID INTEGER PRIMARY KEY AUTOINCREMENT, Username TEXT, Password TEXT, Level TEXT, Score TEXT)";
+            "(Username TEXT, Password TEXT, Level INTEGER, Score INTEGER)";
 
         db.execSQL(CREATE_PRODUCTS_TABLE);
 
@@ -102,16 +105,19 @@ public class MyDBHandler extends SQLiteOpenHelper {
                 This adds the user to the database based on the information given.
                 Log.v(TAG, FILENAME + ": Adding data for Database: " + values.toString());
              */
-        ContentValues values = new ContentValues();
-        values.put(USERNAME, userData.getMyUserName());
-        values.put(PASSWORD, userData.getMyPassword());
-        values.put(LEVEL, userData.getLevels().toString());
-        values.put(SCORE, userData.getScores().toString());
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
 
-        db.insert(TABLE, null, values);
+            for(int i = 0; i < userData.getLevels().size(); i++) {
+                ContentValues values = new ContentValues();
+                values.put(USERNAME, userData.getMyUserName());
+                values.put(PASSWORD, userData.getMyPassword());
+                values.put(LEVEL, userData.getLevels().get(i));
+                values.put(SCORE, userData.getScores().get(i));
 
-        Log.v(TAG, FILENAME + ": Adding data for Database: " + values.toString());
+                Log.v(TAG, FILENAME + ": Adding data for Database: " + values.toString());
+
+                db.insert(TABLE, null, values);
+            }
 
         db.close();
 
@@ -139,19 +145,14 @@ public class MyDBHandler extends SQLiteOpenHelper {
                 Log.v(TAG, FILENAME+ ": No data found!");
             }
          */
-        String query = "SELECT * FROM " + TABLE + " WHERE "
-                + USERNAME
-                + " = \"" + username + "\"";
+        String query = "SELECT * FROM " + TABLE
+                + " WHERE " + USERNAME + " = \"" + username + "\"";
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         Cursor cursor = db.rawQuery(query, null);
 
         UserData us = new UserData();
-
-        int lvl, score;
-        ArrayList<Integer> levelList = new ArrayList<>();
-        ArrayList<Integer> scoreList = new ArrayList<>();
 
         if (cursor.moveToFirst()) {
             us.setMyUserName(cursor.getString(0));
@@ -168,6 +169,9 @@ public class MyDBHandler extends SQLiteOpenHelper {
             score = Integer.parseInt(cursor.getString(3));
             scoreList.add(score);
         }
+
+        us.setLevels(levelList);
+        us.setScores(scoreList);
 
         Log.v(TAG, FILENAME +": Find user form database: " + query);
 
@@ -199,7 +203,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             us.setMyUserName(cursor.getString(0));
-            db.delete(TABLE, ID + " = ?",
+            db.delete(TABLE, USERNAME + " = ?",
                     new String[] { String.valueOf(us.getMyUserName()) });
             cursor.close();
             result = true;
